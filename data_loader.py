@@ -6,13 +6,13 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
 import numpy as np
-import ujson as json
+import json
 
 class MySet(Dataset):
     def __init__(self, input_file):
         self.content = open('./data/' + input_file, 'r').readlines()
-        self.content = map(lambda x: json.loads(x), self.content)
-        self.lengths = map(lambda x: len(x['lngs']), self.content)
+        self.content = [json.loads(x) for x in self.content]
+        self.lengths = [len(x['lngs']) for x in self.content]
 
     def __getitem__(self, idx):
         return self.content[idx]
@@ -59,7 +59,7 @@ class BatchSampler:
         self.count = len(dataset)
         self.batch_size = batch_size
         self.lengths = dataset.lengths
-        self.indices = range(self.count)
+        self.indices = list(range(self.count))
 
     def __iter__(self):
         '''

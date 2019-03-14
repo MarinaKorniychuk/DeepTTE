@@ -3,7 +3,9 @@
 *.sw*
 *.pkl
 *.npy
+.idea/*
 
 #foloders
 logs/*
+saved_weights/
 

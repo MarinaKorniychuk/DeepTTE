@@ -1,6 +1,4 @@
-import os
 import json
-import time
 import utils
 import models
 import logger
@@ -10,13 +8,7 @@ import argparse
 import data_loader
 
 import torch
-import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-
-from torch.autograd import Variable
-
-import numpy as np
 
 parser = argparse.ArgumentParser()
 # basic args
@@ -49,17 +41,16 @@ def train(model, elogger, train_set, eval_set):
     elogger.log(str(model))
     elogger.log(str(args._get_kwargs()))
 
-    model.train()
-
     if torch.cuda.is_available():
         model.cuda()
 
     optimizer = optim.Adam(model.parameters(), lr = 1e-3)
 
-    for epoch in xrange(args.epochs):
-        print 'Training on epoch {}'.format(epoch)
+    for epoch in range(args.epochs):
+        model.train()
+        print('Training on epoch {}'.format(epoch))
         for input_file in train_set:
-            print 'Train on file {}'.format(input_file)
+            print('Train on file {}'.format(input_file))
 
             # data loader, return two dictionaries, attr and traj
             data_iter = data_loader.get_loader(input_file, args.batch_size)
@@ -77,9 +68,9 @@ def train(model, elogger, train_set, eval_set):
                 loss.backward()
                 optimizer.step()
 
-                running_loss += loss.data[0]
-                print '\r Progress {:.2f}%, average loss {}'.format((idx + 1) * 100.0 / len(data_iter), running_loss / (idx + 1.0)),
-            print
+                running_loss += loss.data.item()
+                print('\r Progress {:.2f}%, average loss {}'.format((idx + 1) * 100.0 / len(data_iter), running_loss / (idx + 1.0)), end=' ')
+            print()
             elogger.log('Training Epoch {}, File {}, Loss {}'.format(epoch, input_file, running_loss / (idx + 1.0)))
 
         # evaluate the model after each epoch
@@ -118,15 +109,15 @@ def evaluate(model, elogger, files, save_result = False):
 
             if save_result: write_result(fs, pred_dict, attr)
 
-            running_loss += loss.data[0]
+            running_loss += loss.data.item()
 
-        print 'Evaluate on file {}, loss {}'.format(input_file, running_loss / (idx + 1.0))
+        print('Evaluate on file {}, loss {}'.format(input_file, running_loss / (idx + 1.0)))
         elogger.log('Evaluate File {}, Loss {}'.format(input_file, running_loss / (idx + 1.0)))
 
     if save_result: fs.close()
 
 def get_kwargs(model_class):
-    model_args = inspect.getargspec(model_class.__init__).args
+    model_args = inspect.getfullargspec(model_class.__init__).args
     shell_args = args._get_kwargs()
 
     kwargs = dict(shell_args)

@@ -3,9 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import utils
-import numpy as np
-
-from torch.autograd import Variable
 
 class Net(nn.Module):
     def __init__(self, kernel_size, num_filter):
@@ -30,7 +27,7 @@ class Net(nn.Module):
         locs = torch.cat((lngs, lats, states), dim = 2)
 
         # map the coords into 16-dim vector
-        locs = F.tanh(self.process_coords(locs))
+        locs = torch.tanh(self.process_coords(locs))
         locs = locs.permute(0, 2, 1)
 
         conv_locs = F.elu(self.conv(locs)).permute(0, 2, 1)

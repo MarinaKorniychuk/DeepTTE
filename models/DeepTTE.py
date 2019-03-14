@@ -3,10 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import utils
-import base
-import numpy as np
-
-from torch.autograd import Variable
+from . import base
 
 EPS = 10
 
@@ -75,7 +72,8 @@ class LocalEstimator(nn.Module):
 
 
 class Net(nn.Module):
-    def __init__(self, kernel_size = 3, num_filter = 32, pooling_method = 'attention', num_final_fcs = 3, final_fc_size = 128, alpha = 0.3):
+    def __init__(self, kernel_size = 3, num_filter = 32, pooling_method = 'attention', num_final_fcs = 3,
+                 final_fc_size = 128, alpha = 0.3):
         super(Net, self).__init__()
 
         # parameter of attribute / spatio-temporal component
@@ -96,20 +94,25 @@ class Net(nn.Module):
             if name.find('.bias') != -1:
                 param.data.fill_(0)
             elif name.find('.weight') != -1:
-                nn.init.xavier_uniform(param.data)
+                nn.init.xavier_uniform_(param.data)
 
     def build(self):
         # attribute component
         self.attr_net = base.Attr.Net()
 
         # spatio-temporal component
-        self.spatio_temporal = base.SpatioTemporal.Net(attr_size = self.attr_net.out_size(), \
-                                                       kernel_size = self.kernel_size, \
-                                                       num_filter = self.num_filter, \
-                                                       pooling_method = self.pooling_method
+        self.spatio_temporal = base.SpatioTemporal.Net(
+            attr_size = self.attr_net.out_size(),
+            kernel_size = self.kernel_size,
+            num_filter = self.num_filter,
+            pooling_method = self.pooling_method
         )
 
-        self.entire_estimate = EntireEstimator(input_size =  self.spatio_temporal.out_size() + self.attr_net.out_size(), num_final_fcs = self.num_final_fcs, hidden_size = self.final_fc_size)
+        self.entire_estimate = EntireEstimator(
+            input_size =  self.spatio_temporal.out_size() + self.attr_net.out_size(),
+            num_final_fcs = self.num_final_fcs,
+            hidden_size = self.final_fc_size
+        )
 
         self.local_estimate = LocalEstimator(input_size = self.spatio_temporal.out_size())
 

@@ -12,7 +12,7 @@ def geo_distance(lon1, lat1, lon2, lat2):
     Calculate the great circle distance between two points
     on the earth (specified in decimal degrees)
     """
-    lon1, lat1, lon2, lat2 = map(radians, map(float, [lon1, lat1, lon2, lat2]))
+    lon1, lat1, lon2, lat2 = list(map(radians, list(map(float, [lon1, lat1, lon2, lat2]))))
     dlon = lon2 - lon1
     dlat = lat2 - lat1
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
@@ -50,7 +50,7 @@ def to_var(var):
             var[key] = to_var(var[key])
         return var
     if isinstance(var, list):
-        var = map(lambda x: to_var(x), var)
+        var = [to_var(x) for x in var]
         return var
 
 def get_local_seq(full_seq, kernel_size, mean, std):
