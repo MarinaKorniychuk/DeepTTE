@@ -7,5 +7,6 @@
 
 #foloders
 logs/*
+result/*
 saved_weights/
 

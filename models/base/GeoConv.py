@@ -31,7 +31,6 @@ class Net(nn.Module):
         locs = locs.permute(0, 2, 1)
 
         conv_locs = F.elu(self.conv(locs)).permute(0, 2, 1)
-
         # calculate the dist for local paths
         local_dist = utils.get_local_seq(traj['dist_gap'], self.kernel_size, config['dist_gap_mean'], config['dist_gap_std'])
         local_dist = torch.unsqueeze(local_dist, dim = 2)
